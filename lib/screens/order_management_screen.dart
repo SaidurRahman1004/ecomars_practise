@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecomars_practise/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,7 @@ class OrderManagementScreen extends StatefulWidget {
 
 class _OrderManagementScreenState extends State<OrderManagementScreen> {
   final OrderService _orderService = OrderService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String orderId = '123456789';
   @override
   void initState() {
@@ -36,9 +38,27 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 20,),
-                _buildContainer('Order ID', orderId),
+               StreamBuilder<DocumentSnapshot>(stream: _firestore.collection('orders').doc(orderId).snapshots(), builder: (_,snapshot){
+                 if(snapshot.hasData){
+                   final orderId = snapshot.data!['orderId'] ?? 'No Order';
+                   return _buildContainer('Order ID', orderId);
+                 }else{
+                   return _buildContainer('Order ID', 'Loading...');
+                 }
+               }),
+               // _buildContainer('Order ID', orderId),
                 const SizedBox(height: 40,),
-                _buildContainer('Current Status', orderId),
+                //InstanceView
+                StreamBuilder<DocumentSnapshot>(
+                  stream: _firestore.collection('orders').doc(orderId).snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final status = snapshot.data!['orderStatus'] ??  'No Order';
+                      return _buildContainer('Current Status', status);
+                    }
+                    return _buildContainer('Current Status', 'Loading...');
+                  },
+                ),
                 const SizedBox(height: 40,),
                 CustomButton(buttonName: ' Place Order', onPressed: () async{
                   _orderService.updateOrderStatus(orderId, 'Placed');
