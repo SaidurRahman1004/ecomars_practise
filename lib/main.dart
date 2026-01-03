@@ -4,6 +4,8 @@ import 'package:ecomars_practise/screens/order_management_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'Fintech/screens/wallet_screen.dart';
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async{
@@ -27,7 +29,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      home: OrderManagementScreen(),
+      home: WalletScreen(),
     );
   }
 }
