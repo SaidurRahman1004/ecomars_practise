@@ -1,6 +1,7 @@
 import 'package:ecomars_practise/firebase_options.dart';
 import 'package:ecomars_practise/screens/order_details_screen.dart';
 import 'package:ecomars_practise/screens/order_management_screen.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -24,11 +25,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
+      navigatorObservers: <NavigatorObserver>[observer],
       home: WalletScreen(),
     );
   }

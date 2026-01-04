@@ -1,4 +1,7 @@
+import 'package:ecomars_practise/Fintech/screens/transaction_history_screen.dart';
 import 'package:ecomars_practise/Fintech/services/wallet_analytics_service.dart';
+import 'package:ecomars_practise/Fintech/widgets/transaction_dialog.dart';
+import 'package:ecomars_practise/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -9,6 +12,12 @@ class WalletScreen extends StatefulWidget {
 }
 
 class _WalletScreenState extends State<WalletScreen> {
+  WalletAnalyticsService _analyticsService = WalletAnalyticsService();
+  @override
+  void initState() {
+    super.initState();
+    _analyticsService.logScreenView('WalletScreen');
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,6 +93,9 @@ class _WalletScreenState extends State<WalletScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+
+
+
                         ],
                       ),
                     ),
@@ -119,6 +131,11 @@ class _WalletScreenState extends State<WalletScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 20),
+          CustomButton(buttonName: 'View History', onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>TransactionHistoryScreen()));
+          }),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -126,7 +143,9 @@ class _WalletScreenState extends State<WalletScreen> {
 
   Widget _buildActionButton(String title, IconData icon) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        showDialog(context: context, builder: (context)=>TransactionDialog(transactionType: title));
+      },
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Container(
