@@ -1,7 +1,9 @@
 import 'package:ecomars_practise/Fintech/screens/transaction_history_screen.dart';
 import 'package:ecomars_practise/Fintech/services/wallet_analytics_service.dart';
 import 'package:ecomars_practise/Fintech/widgets/transaction_dialog.dart';
+import 'package:ecomars_practise/widgets/custo_snk.dart';
 import 'package:ecomars_practise/widgets/custom_button.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -134,6 +136,12 @@ class _WalletScreenState extends State<WalletScreen> {
           const SizedBox(height: 20),
           CustomButton(buttonName: 'View History', onPressed: (){
             Navigator.push(context, MaterialPageRoute(builder: (context)=>TransactionHistoryScreen()));
+          }),
+          const SizedBox(height: 20),
+          CustomButton(buttonName: "Crash", onPressed: (){
+            FirebaseCrashlytics.instance.crash();
+            _analyticsService.logUserJourney('User Clicked Crash');
+            mySnkmsg('Crashed', context);
           }),
           const SizedBox(height: 20),
         ],
