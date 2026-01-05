@@ -145,6 +145,7 @@ class _WalletScreenState extends State<WalletScreen> {
     return InkWell(
       onTap: () {
         showDialog(context: context, builder: (context)=>TransactionDialog(transactionType: title));
+        _analyticsService.logUserJourney('User Clicked $title');
       },
       child: Padding(
         padding: const EdgeInsets.all(20),

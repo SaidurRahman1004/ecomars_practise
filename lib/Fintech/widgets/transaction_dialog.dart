@@ -2,9 +2,7 @@ import 'dart:math';
 
 import 'package:ecomars_practise/Fintech/services/wallet_analytics_service.dart';
 import 'package:ecomars_practise/widgets/custo_snk.dart';
-import 'package:ecomars_practise/widgets/custom_button.dart';
 import 'package:ecomars_practise/widgets/custom_text_field.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 
 enum PaymentMethode { Bkash, Nagad, Card }
@@ -21,6 +19,7 @@ class _TransactionDialogState extends State<TransactionDialog> {
   final TextEditingController _amountController = TextEditingController();
   PaymentMethode _selectedtMethode = PaymentMethode.Bkash;
   final WalletAnalyticsService _analyticsService = WalletAnalyticsService();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -48,6 +47,9 @@ class _TransactionDialogState extends State<TransactionDialog> {
             lableText: 'Enter Amount',
             hintText: '0',
             maxLine: 2,
+            // onChanged: (value) {
+            //   _analyticsService.logUserJourney("User Typeing Ammount");
+            // },
           ),
 
           const SizedBox(height: 15),
@@ -68,6 +70,9 @@ class _TransactionDialogState extends State<TransactionDialog> {
                   setState(() {
                     _selectedtMethode = methode;
                   });
+                  _analyticsService.logUserJourney(
+                    "User Selected Payment Methode ${methode.name}",
+                  );
                 },
               );
             }).toList(),
@@ -96,28 +101,82 @@ class _TransactionDialogState extends State<TransactionDialog> {
   //Confirm transaction button
 
   void _confirmTransaction() async {
+    _analyticsService.logUserJourney('User Clicked Confirm Transaction Button');
+    setState(() {
+      _isLoading = true;
+    });
     double amount = double.tryParse(_amountController.text) ?? 0.00;
-
-    //Analytics Logics event log start Transaction
-    await _analyticsService.logTransactionStart(
-      paymentMethod: _selectedtMethode.name,
+    //Set Crashlytics Custom Key for See Extra Error info
+    await _analyticsService.setCustomKey(
+      paymentMathode: _selectedtMethode.name,
       amount: amount,
-      transactionType: widget.transactionType,
+      userId: 'user 321',
     );
+    try {
+      if (amount <= 0) {
+        throw Exception('Invalid Amount');
+      }
+      if (amount > 50000) {
+        throw Exception('Amount Exceed');
+      }
+      //Analytics Logics event log start Transaction
+      await _analyticsService.logTransactionStart(
+        paymentMethod: _selectedtMethode.name,
+        amount: amount,
+        transactionType: widget.transactionType,
+      );
 
-    Navigator.pop(context);
-    mySnkmsg('Processing Transaction', context);
-    await Future.delayed(Duration(seconds: 2));
-    String txnId = 'TNX-${Random().nextInt(99999)}';
-    //Analytics Logics Complete Transaction event log
-    await _analyticsService.logTransactionComplete(
-      transactionId: txnId,
-      paymentMethod: _selectedtMethode.name,
-      amount: amount,
-    );
-    mySnkmsg(
-      '" $amount BDT Sent via $_selectedtMethode (ID: $txnId)"',
-      context,
-    );
+      mySnkmsg('Processing Transaction', context);
+      await Future.delayed(Duration(seconds: 2));
+      int randomError = Random().nextInt(10);
+      if (randomError < 2) {
+        throw Exception("Payment Gateway Timeout (504)");
+      } else if (randomError < 4) {
+        throw Exception("Payment Failed: Insufficient Balance");
+      }
+
+      String txnId = 'TNX-${Random().nextInt(99999)}';
+      //Analytics Logics Complete Transaction event log
+      await _analyticsService.logTransactionComplete(
+        transactionId: txnId,
+        paymentMethod: _selectedtMethode.name,
+        amount: amount,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        mySnkmsg(
+          '" $amount BDT Sent via $_selectedtMethode (ID: $txnId)"',
+          context,
+        );
+      }
+    } catch (e, stackTrace) {
+      //send Error Crash Analytics
+      await _analyticsService.recordError(
+        e,
+        stackTrace,
+        reason: 'Transaction Faild For ${widget.transactionType}',
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              " Error: ${e.toString().replaceAll('Exception:', '')}",
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'RETRY',
+              textColor: Colors.white,
+              onPressed: _confirmTransaction,
+            ),
+          ),
+        );
+      }
+    }
   }
 }

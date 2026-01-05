@@ -10,7 +10,9 @@ class CustomTextField extends StatelessWidget {
   final bool isPassword;
   final int maxLine;
   final String? Function(String?)? validator;
+  final String? Function(String?)? onChanged;
   final TextInputType keyboardType;
+
 
   const CustomTextField({
     super.key,
@@ -23,6 +25,7 @@ class CustomTextField extends StatelessWidget {
     this.maxLine = 1,
     this.validator,
     this.keyboardType = TextInputType.text,
+    this.onChanged,
   });
 
   @override
@@ -33,6 +36,7 @@ class CustomTextField extends StatelessWidget {
       validator: validator,
       keyboardType: keyboardType,
       maxLines: maxLine,
+      onChanged: onChanged,
       decoration: InputDecoration(
         prefixIcon: Icon(icon),
         labelText: lableText,
