@@ -5,6 +5,8 @@ import 'package:ecomars_practise/widgets/custo_snk.dart';
 import 'package:ecomars_practise/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 
+import '../services/remote_config_service.dart';
+
 enum PaymentMethode { Bkash, Nagad, Card }
 
 class TransactionDialog extends StatefulWidget {
@@ -20,6 +22,7 @@ class _TransactionDialogState extends State<TransactionDialog> {
   PaymentMethode _selectedtMethode = PaymentMethode.Bkash;
   final WalletAnalyticsService _analyticsService = WalletAnalyticsService();
   bool _isLoading = false;
+  final RemoteConfigService _remoteConfig = RemoteConfigService();
 
   @override
   void dispose() {
@@ -29,6 +32,7 @@ class _TransactionDialogState extends State<TransactionDialog> {
 
   @override
   Widget build(BuildContext context) {
+    double fee = _remoteConfig.transactionFee;
     return AlertDialog(
       title: Text(widget.transactionType),
       content: Column(
@@ -50,6 +54,14 @@ class _TransactionDialogState extends State<TransactionDialog> {
             // onChanged: (value) {
             //   _analyticsService.logUserJourney("User Typeing Ammount");
             // },
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Transaction Fee: $fee%',
+              style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.w500),
+            ),
           ),
 
           const SizedBox(height: 15),
