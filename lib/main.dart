@@ -5,9 +5,11 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'Fintech/screens/wallet_screen.dart';
 import 'Test/portfolio.dart';
+import 'gadget_store/views/shop_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 /*
@@ -51,9 +53,9 @@ class _MyAppState extends State<MyApp> {
 
  */
 void main() {
-  runApp(const PortfolioApp());
+  runApp(const MyApp());
 }
-
+/*
 class PortfolioApp extends StatelessWidget {
   const PortfolioApp({super.key});
 
@@ -68,6 +70,22 @@ class PortfolioApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const PortfolioHomePage(),
+    );
+  }
+}
+
+ */
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Gadget Store',
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      home: ShopScreen(),
     );
   }
 }
